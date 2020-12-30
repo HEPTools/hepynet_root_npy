@@ -1,3 +1,4 @@
 *.pyc
 
-old_codes/*
+old_codes
+.vscode

@@ -1,6 +1,7 @@
 import io
 import logging
 import os
+import pathlib
 
 import numpy as np
 import uproot
@@ -44,7 +45,9 @@ def save_array(array, directory_path, file_name, dump_empty=False):
         file_name: str, file name used by .npy file
 
     """
-    save_path = directory_path + "/" + file_name + ".npy"
+    save_dir = pathlib.Path(directory_path)
+    save_dir.mkdir(parents=True, exist_ok=True)
+    save_path = save_dir.joinpath(f"{file_name}.npy")
     if array.size == 0:
         if dump_empty:
             logging.warning("Empty array detected! Will save empty array as specified.")
@@ -53,7 +56,5 @@ def save_array(array, directory_path, file_name, dump_empty=False):
                 "Empty array detected! Skipping saving current array to: " + save_path
             )
             return
-    if not os.path.exists(directory_path):
-        os.makedirs(directory_path)
     with io.open(save_path, "wb") as f:
         np.save(f, array)
