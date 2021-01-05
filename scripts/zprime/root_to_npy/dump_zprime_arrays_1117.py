@@ -1,7 +1,7 @@
 import os
 import  logging
 import numpy as np
-from array_to_ntuple import dump_flat_ntuple_individual, save_array
+from ntuple_to_array import dump_flat_ntuple_individual, save_array
 
 logging.getLogger().setLevel(logging.INFO)
 
