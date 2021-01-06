@@ -317,11 +317,11 @@ for camp in ["mc16d"]:
             mz1 = np.load(f"{save_dir_sub}/bkg_{bkg_key}_mz1.npy")
             mz2 = np.load(f"{save_dir_sub}/bkg_{bkg_key}_mz2.npy")
             mz1_mz2 = mz1 - mz2
-            save_array(mz1_mz2, save_dir_sub, "bkg_{bkg_key}_mz1_mz2")
+            save_array(mz1_mz2, save_dir_sub, f"bkg_{bkg_key}_mz1_mz2")
             # parameterized feature
-            save_array(mz1, save_dir_sub, "bkg_{bkg_key}_mz1_p")
+            save_array(mz1, save_dir_sub, f"bkg_{bkg_key}_mz1_p")
             # parameterized feature
-            save_array(mz2, save_dir_sub, "bkg_{bkg_key}_mz2_p")
+            save_array(mz2, save_dir_sub, f"bkg_{bkg_key}_mz2_p")
             dummy_channel = np.ones(len(mz1))
             save_array(dummy_channel, save_dir_sub,
                        f"bkg_{bkg_key}_dummy_channel")
