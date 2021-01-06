@@ -34,7 +34,6 @@ feature_list = [
     "run",
     "event",
     "quadtype",
-    "weight",
     "weightr",
 ]
 
@@ -128,7 +127,7 @@ for camp in ["mc16a", "mc16d", "mc16e"]:
         dummy_channel = np.ones(len(mz1))
         save_array(dummy_channel, arrays_dir + "/" + camp, "bkg_{}_dummy_channel".format(bkg_key))
         normed_weight = np.load(arrays_dir + "/" + camp + "/bkg_{}_weightr.npy".format(bkg_key))
-        save_array(normed_weight, arrays_dir + "/" + camp, "/bkg_{}_weight".format(bkg_key))
+        save_array(normed_weight, arrays_dir + "/" + camp, "bkg_{}_weight".format(bkg_key))
 
     # Dump sig
     for index, sig_key in enumerate(sig_names):
@@ -189,5 +188,5 @@ for camp in ["mc16a", "mc16d", "mc16e"]:
             arrays_dir + "/" + camp + "/sig_{}_weightr.npy".format(sig_key)
         )
         save_array(
-            normed_weight, arrays_dir + "/" + camp, "/sig_{}_weight".format(sig_key)
+            normed_weight, arrays_dir + "/" + camp, "sig_{}_weight".format(sig_key)
         )

@@ -323,14 +323,12 @@ for camp in ["mc16d"]:
             # parameterized feature
             save_array(mz2, save_dir_sub, f"bkg_{bkg_key}_mz2_p")
             dummy_channel = np.ones(len(mz1))
-            save_array(dummy_channel, save_dir_sub,
-                       f"bkg_{bkg_key}_dummy_channel")
-            normed_weight = np.load(
-                f"{arrays_dir}/{ntuple_name}/{camp}/bkg_{bkg_key}_weightr.npy")
-            save_array(normed_weight, save_dir_sub, f"/bkg_{bkg_key}_weight")
+            save_array(dummy_channel, save_dir_sub, f"bkg_{bkg_key}_dummy_channel")
+            normed_weight = np.load(f"{save_dir_sub}/bkg_{bkg_key}_weightr.npy")
+            save_array(normed_weight, save_dir_sub, f"bkg_{bkg_key}_weight")
 
         # Dump sig
-        '''
+        """
         for index, sig_key in enumerate(sig_names):
             root_path = ntup_dir + "/" + camp + \
                 "/tree_{}.root".format(sig_names[sig_key])
@@ -402,6 +400,7 @@ for camp in ["mc16d"]:
             )
             save_array(
                 normed_weight, arrays_dir + "/" +
-                camp, "/sig_{}_weight".format(sig_key)
+                camp, "sig_{}_weight".format(sig_key)
             )
-        '''
+        """
+

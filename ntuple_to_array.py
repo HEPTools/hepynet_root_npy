@@ -36,7 +36,7 @@ def dump_flat_ntuple_individual(
         save_array(temp_arr, save_dir, file_name)
 
 
-def save_array(array, directory_path, file_name, dump_empty=False):
+def save_array(npy_array, directory_path, file_name, dump_empty=False):
     """Saves numpy data as .npy file
 
     Args:
@@ -48,7 +48,7 @@ def save_array(array, directory_path, file_name, dump_empty=False):
     save_dir = pathlib.Path(directory_path)
     save_dir.mkdir(parents=True, exist_ok=True)
     save_path = save_dir.joinpath(f"{file_name}.npy")
-    if array.size == 0:
+    if npy_array.size == 0:
         if dump_empty:
             logging.warning("Empty array detected! Will save empty array as specified.")
         else:
@@ -57,4 +57,4 @@ def save_array(array, directory_path, file_name, dump_empty=False):
             )
             return
     with io.open(save_path, "wb") as f:
-        np.save(f, array)
+        np.save(f, npy_array)
