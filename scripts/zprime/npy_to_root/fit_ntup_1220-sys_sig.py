@@ -23,14 +23,10 @@ sig_keys = [
     "sig_Zp072",
     "sig_Zp075",
 ]
-bkg_keys = [
-    # "bkg_ggZZ",
-    "bkg_qcd",
-]
 
 branch_list = ["mz1", "mz2", "dnn_out", "weight"]
 
-bkg_ntuple_names = [
+sig_ntuple_names = [
     "tree_NOMINAL",
     "tree_EG_RESOLUTION_ALL__1down",
     "tree_EG_RESOLUTION_ALL__1up",
@@ -229,8 +225,9 @@ bkg_ntuple_names = [
 ]
 
 # get bkg ntuples
-for variation in bkg_ntuple_names:
-    for sample_key in bkg_keys:
+for variation in sig_ntuple_names:
+    print(f"Generating fit ntuples for {variation}")
+    for sample_key in sig_keys:
         dump_contents = []
         for branch in branch_list:
             array_path = input_array_dir.joinpath(f"{variation}/mc16d/{sample_key}_{branch}.npy")
