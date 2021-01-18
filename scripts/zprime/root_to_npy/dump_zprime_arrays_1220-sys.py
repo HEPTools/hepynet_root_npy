@@ -498,7 +498,8 @@ if not os.path.exists(arrays_dir):
     os.makedirs(arrays_dir)
 
 # Dump bkg
-for camp in ["mc16d"]:
+# for camp in ["mc16d"]:
+for camp in ["run2"]:
     # for camp in ["mc16a", "mc16d", "mc16e"]:
     for ntuple_name in bkg_ntuple_names:
         for index, bkg_key in enumerate(bkg_names):
@@ -526,8 +527,9 @@ for camp in ["mc16d"]:
             save_array(normed_weight, save_dir_sub, f"bkg_{bkg_key}_weight")
 
 # Dump sig
-for camp in ["mc16d"]:
-    # for camp in ["mc16a", "mc16d", "mc16e"]:
+# for camp in ["mc16d"]:
+'''
+for camp in ["run2"]:
     for ntuple_name in sig_ntuple_names:
         for index, sig_key in enumerate(sig_names):
             root_path = f"{ntup_dir}/{camp}/tree_{sig_names[sig_key]}.root"
@@ -558,4 +560,4 @@ for camp in ["mc16d"]:
             )
             normed_weight = np.load(f"{save_dir_sub}/sig_{sig_key}_weightr.npy")
             save_array(normed_weight, save_dir_sub, f"sig_{sig_key}_weight")
-
+'''

@@ -8,18 +8,34 @@ logging.getLogger().setLevel(logging.INFO)
 # Constants
 release_name = "1220-sys"
 
-feature_list={
+sig_feature_list_low = {
+    "weight_QCD_SCALE_UP_MZ2",
+    "weight_QCD_SCALE_DOWN_MZ2",
+    "weight_PDF_UP_MZ2",
+}
+
+sig_feature_list_high = {
+    "weight_QCD_SCALE_UP_MZ1",
+    "weight_QCD_SCALE_DOWN_MZ1",
+    "weight_PDF_UP_MZ1",
+}
+
+bkg_feature_list = {
     "weight_QCD_SCALE_UP_MZ1",
     "weight_QCD_SCALE_DOWN_MZ1",
     "weight_QCD_SCALE_UP_MZ2",
     "weight_QCD_SCALE_DOWN_MZ2",
+    "weight_PDF_UP_MZ1",
+    "weight_PDF_UP_MZ2",
+    "weight_ALPHA_S_UP_MZ1",
+    "weight_ALPHA_S_UP_MZ2",
 }
 
 bkg_names = {
     "qcd": "364250_QCD",
     # "ggZZ": "ggZZ",
 }
-sig_names = {
+sig_names_low = {
     "Zp005": "502547_2muZp005",
     "Zp007": "502548_2muZp007",
     "Zp009": "502549_2muZp009",
@@ -33,6 +49,8 @@ sig_names = {
     "Zp031": "502557_2muZp031",
     "Zp035": "502558_2muZp035",
     "Zp039": "502559_2muZp039",
+}
+sig_names_high = {
     "Zp042": "502560_2muZp042",
     "Zp045": "502561_2muZp045",
     "Zp048": "502562_2muZp048",
@@ -46,33 +64,7 @@ sig_names = {
     "Zp072": "502570_2muZp072",
     "Zp075": "502571_2muZp075",
 }
-sig_masses = {
-    "Zp005": 5,
-    "Zp007": 7,
-    "Zp009": 9,
-    "Zp011": 11,
-    "Zp013": 13,
-    "Zp015": 15,
-    "Zp017": 17,
-    "Zp019": 19,
-    "Zp023": 23,
-    "Zp027": 27,
-    "Zp031": 31,
-    "Zp035": 35,
-    "Zp039": 39,
-    "Zp042": 42,
-    "Zp045": 45,
-    "Zp048": 48,
-    "Zp051": 51,
-    "Zp054": 54,
-    "Zp057": 57,
-    "Zp060": 60,
-    "Zp063": 63,
-    "Zp066": 66,
-    "Zp069": 69,
-    "Zp072": 72,
-    "Zp075": 75,
-}
+
 
 # Set path in docker
 ntup_dir = f"/data/zprime/ntuples/{release_name}"
@@ -81,34 +73,55 @@ if not os.path.exists(arrays_fit_dir):
     os.makedirs(arrays_fit_dir)
 
 # Dump bkg
-# for camp in ["mc16a", "mc16d", "mc16e"]:
-for camp in ["mc16d"]:
+# for camp in ["mc16d"]:
+for camp in ["run2"]:
     ntuple_name = "tree_NOMINAL"
     for index, bkg_key in enumerate(bkg_names):
         root_path = f"{ntup_dir}/{camp}/tree_{bkg_names[bkg_key]}.root"
-        save_dir_sub = f"{arrays_fit_dir}/tree_NOMINAL/{camp}"
+        save_dir_sub = f"{arrays_fit_dir}/low_mass/{ntuple_name}/{camp}"
         dump_flat_ntuple_individual(
             root_path,
             ntuple_name,
-            feature_list,
+            bkg_feature_list,
+            save_dir_sub,
+            f"bkg_{bkg_key}",
+            use_lower_var_name=True,
+        )
+        save_dir_sub = f"{arrays_fit_dir}/high_mass/{ntuple_name}/{camp}"
+        dump_flat_ntuple_individual(
+            root_path,
+            ntuple_name,
+            bkg_feature_list,
             save_dir_sub,
             f"bkg_{bkg_key}",
             use_lower_var_name=True,
         )
 
-
 # Dump sig
-# for camp in ["mc16a", "mc16d", "mc16e"]:
 # for camp in ["mc16d"]:
-#     ntuple_name = "tree_NOMINAL"
-#     for index, sig_key in enumerate(sig_names):
-#         root_path = f"{ntup_dir}/{camp}/tree_{sig_names[sig_key]}.root"
-#         save_dir_sub = f"{arrays_dir}/{ntuple_name}/{camp}"
-#         dump_flat_ntuple_individual(
-#             root_path,
-#             ntuple_name,
-#             feature_list,
-#             save_dir_sub,
-#             f"sig_{sig_key}",
-#             use_lower_var_name=True,
-#         )
+for camp in ["run2"]:
+    ntuple_name = "tree_NOMINAL"
+    # low mass
+    for index, sig_key in enumerate(sig_names_low):
+        root_path = f"{ntup_dir}/{camp}/tree_{sig_names_low[sig_key]}.root"
+        save_dir_sub = f"{arrays_fit_dir}/low_mass/{ntuple_name}/{camp}"
+        dump_flat_ntuple_individual(
+            root_path,
+            ntuple_name,
+            sig_feature_list_low,
+            save_dir_sub,
+            f"sig_{sig_key}",
+            use_lower_var_name=True,
+        )
+    # high mass
+    for index, sig_key in enumerate(sig_names_high):
+        root_path = f"{ntup_dir}/{camp}/tree_{sig_names_high[sig_key]}.root"
+        save_dir_sub = f"{arrays_fit_dir}/high_mass/{ntuple_name}/{camp}"
+        dump_flat_ntuple_individual(
+            root_path,
+            ntuple_name,
+            sig_feature_list_high,
+            save_dir_sub,
+            f"sig_{sig_key}",
+            use_lower_var_name=True,
+        )

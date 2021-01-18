@@ -9,7 +9,23 @@ ntup_save_dir = pathlib.Path("/data/zprime/ntuples_fit/1220-sys")
 
 ntup_save_dir.mkdir(parents=True, exist_ok=True)
 
-sig_keys = [
+sig_keys_low = [
+    "sig_Zp005",
+    "sig_Zp007",
+    "sig_Zp009",
+    "sig_Zp011",
+    "sig_Zp013",
+    "sig_Zp015",
+    "sig_Zp017",
+    "sig_Zp019",
+    "sig_Zp023",
+    "sig_Zp027",
+    "sig_Zp031",
+    "sig_Zp035",
+    "sig_Zp039",
+]
+
+sig_keys_high = [
     "sig_Zp042",
     "sig_Zp045",
     "sig_Zp048",
@@ -25,6 +41,26 @@ sig_keys = [
 ]
 
 branch_list = ["mz1", "mz2", "dnn_out", "weight"]
+branch_list_wt_low = [
+    "mz1",
+    "mz2",
+    "dnn_out",
+    "weight",
+    "weight_QCD_SCALE_UP_MZ2".lower(),
+    "weight_QCD_SCALE_DOWN_MZ2".lower(),
+    "weight_PDF_UP_MZ2".lower(),
+]
+branch_list_wt_high = [
+    "mz1",
+    "mz2",
+    "dnn_out",
+    "weight",
+    "weight_QCD_SCALE_UP_MZ1".lower(),
+    "weight_QCD_SCALE_DOWN_MZ1".lower(),
+    "weight_PDF_UP_MZ1".lower(),
+]
+
+camp = "run2"
 
 sig_ntuple_names = [
     "tree_NOMINAL",
@@ -226,16 +262,58 @@ sig_ntuple_names = [
 
 # get bkg ntuples
 for variation in sig_ntuple_names:
+# for variation in ["tree_NOMINAL"]:
+    # low mass
     print(f"Generating fit ntuples for {variation}")
-    for sample_key in sig_keys:
+    for sample_key in sig_keys_low:
         dump_contents = []
-        for branch in branch_list:
-            array_path = input_array_dir.joinpath(f"{variation}/mc16d/{sample_key}_{branch}.npy")
-            branch_content = np.load(array_path)
-            dump_contents.append(branch_content)
-
-        ntuple_path = ntup_save_dir.joinpath(f"{variation}/mc16d/{sample_key}.root")
-        ntuple_path.parent.mkdir(parents=True, exist_ok=True)
-        dump_ntup_from_npy(
-            "ntup", branch_list, "f", dump_contents, ntuple_path,
+        ntuple_path = ntup_save_dir.joinpath(
+            f"low_mass/{variation}/{camp}/{sample_key}.root"
         )
+        ntuple_path.parent.mkdir(parents=True, exist_ok=True)
+        if variation == "tree_NOMINAL":
+            for branch in branch_list_wt_low:
+                array_path = input_array_dir.joinpath(
+                    f"low_mass/{variation}/{camp}/{sample_key}_{branch}.npy"
+                )
+                branch_content = np.load(array_path)
+                dump_contents.append(branch_content)
+            dump_ntup_from_npy(
+                "ntup", branch_list_wt_low, "f", dump_contents, ntuple_path
+            )
+        else:
+            for branch in branch_list:
+                array_path = input_array_dir.joinpath(
+                    f"low_mass/{variation}/{camp}/{sample_key}_{branch}.npy"
+                )
+                branch_content = np.load(array_path)
+                dump_contents.append(branch_content)
+            dump_ntup_from_npy("ntup", branch_list, "f", dump_contents, ntuple_path)
+
+    # high_mass
+    print(f"Generating fit ntuples for {variation}")
+    for sample_key in sig_keys_high:
+        dump_contents = []
+        ntuple_path = ntup_save_dir.joinpath(
+            f"high_mass/{variation}/{camp}/{sample_key}.root"
+        )
+        ntuple_path.parent.mkdir(parents=True, exist_ok=True)
+        if variation == "tree_NOMINAL":
+            for branch in branch_list_wt_high:
+                array_path = input_array_dir.joinpath(
+                    f"high_mass/{variation}/{camp}/{sample_key}_{branch}.npy"
+                )
+                branch_content = np.load(array_path)
+                dump_contents.append(branch_content)
+            dump_ntup_from_npy(
+                "ntup", branch_list_wt_high, "f", dump_contents, ntuple_path
+            )
+        else:
+            for branch in branch_list:
+                array_path = input_array_dir.joinpath(
+                    f"high_mass/{variation}/{camp}/{sample_key}_{branch}.npy"
+                )
+                branch_content = np.load(array_path)
+                dump_contents.append(branch_content)
+            dump_ntup_from_npy("ntup", branch_list, "f", dump_contents, ntuple_path)
+

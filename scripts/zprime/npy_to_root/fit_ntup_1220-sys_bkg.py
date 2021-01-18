@@ -15,9 +15,23 @@ bkg_keys = [
 ]
 
 branch_list = ["mz1", "mz2", "dnn_out", "weight"]
+branch_list_wt = [
+    "mz1",
+    "mz2",
+    "dnn_out",
+    "weight",
+    "weight_QCD_SCALE_UP_MZ1".lower(),
+    "weight_QCD_SCALE_DOWN_MZ1".lower(),
+    "weight_QCD_SCALE_UP_MZ2".lower(),
+    "weight_QCD_SCALE_DOWN_MZ2".lower(),
+    "weight_PDF_UP_MZ1".lower(),
+    "weight_PDF_UP_MZ2".lower(),
+    "weight_ALPHA_S_UP_MZ1".lower(),
+    "weight_ALPHA_S_UP_MZ2".lower(),
+]
 
 bkg_ntuple_names = [
-    #"tree_NOMINAL",
+    "tree_NOMINAL",
     "tree_EG_RESOLUTION_ALL__1down",
     "tree_EG_RESOLUTION_ALL__1up",
     "tree_EG_SCALE_AF2__1down",
@@ -214,18 +228,37 @@ bkg_ntuple_names = [
     "tree_PRW_DATASF__1up",
 ]
 
-# get bkg ntuples
-for variation in bkg_ntuple_names:
-    print(f"Generating fit ntuples for {variation}")
-    for sample_key in bkg_keys:
-        dump_contents = []
-        for branch in branch_list:
-            array_path = input_array_dir.joinpath(f"{variation}/mc16d/{sample_key}_{branch}.npy")
-            branch_content = np.load(array_path)
-            dump_contents.append(branch_content)
 
-        ntuple_path = ntup_save_dir.joinpath(f"{variation}/mc16d/{sample_key}.root")
-        ntuple_path.parent.mkdir(parents=True, exist_ok=True)
-        dump_ntup_from_npy(
-            "ntup", branch_list, "f", dump_contents, ntuple_path,
-        )
+def generate_one_region(region):
+    for variation in bkg_ntuple_names:
+        print(f"Generating fit ntuples for {variation}")
+        for sample_key in bkg_keys:
+            dump_contents = []
+            ntuple_path = ntup_save_dir.joinpath(
+                f"{region}/{variation}/run2/{sample_key}.root"
+            )
+            ntuple_path.parent.mkdir(parents=True, exist_ok=True)
+            if variation == "tree_NOMINAL":
+                for branch in branch_list_wt:
+                    array_path = input_array_dir.joinpath(
+                        f"{region}/{variation}/run2/{sample_key}_{branch}.npy"
+                    )
+                    branch_content = np.load(array_path)
+                    dump_contents.append(branch_content)
+                dump_ntup_from_npy(
+                    "ntup", branch_list_wt, "f", dump_contents, ntuple_path,
+                )
+            else:
+                for branch in branch_list:
+                    array_path = input_array_dir.joinpath(
+                        f"{region}/{variation}/run2/{sample_key}_{branch}.npy"
+                    )
+                    branch_content = np.load(array_path)
+                    dump_contents.append(branch_content)
+                dump_ntup_from_npy(
+                    "ntup", branch_list, "f", dump_contents, ntuple_path,
+                )
+
+
+for region in ["low_mass", "high_mass"]:
+    generate_one_region(region)
