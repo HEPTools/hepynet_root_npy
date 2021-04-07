@@ -14,6 +14,7 @@ def dump_flat_ntuple_individual(
     save_dir: str,
     save_pre_fix: str,
     use_lower_var_name: bool = False,
+    channel_feature: str = None,
 ) -> None:
     """Reads numpy array from ROOT ntuple and convert to numpy array.
 
@@ -26,6 +27,10 @@ def dump_flat_ntuple_individual(
     except:
         raise IOError("Can not get ntuple")
     logging.info(f"Read arrays from: {root_path}")
+    if channel_feature is not None:
+        cut_index = np.argwhere(events[channel_feature].array(library="np") == 1)
+    else:
+        cut_index = None
     for var in variable_list:
         if use_lower_var_name:
             file_name = save_pre_fix + "_" + var.lower()
@@ -33,6 +38,8 @@ def dump_flat_ntuple_individual(
             file_name = save_pre_fix + "_" + var
         logging.info(f"Generating: {file_name}")
         temp_arr = events[var].array(library="np")
+        if cut_index is not None:
+            temp_arr = temp_arr[cut_index]
         save_array(temp_arr, save_dir, file_name)
 
 
@@ -50,11 +57,8 @@ def save_array(npy_array, directory_path, file_name, dump_empty=False):
     save_path = save_dir.joinpath(f"{file_name}.npy")
     if npy_array.size == 0:
         if dump_empty:
-            logging.warning("Empty array detected! Will save empty array as specified.")
+            logging.warn("Empty array detected! Will save empty array as specified.")
         else:
-            logging.warning(
-                "Empty array detected! Skipping saving current array to: " + save_path
-            )
-            return
+            logging.warn("Empty array detected!")
     with io.open(save_path, "wb") as f:
         np.save(f, npy_array)
