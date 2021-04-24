@@ -5,4 +5,4 @@ docker run -it --rm ^
     -v %work_dir%:/work ^
     -v D:\Data:/data ^
     -w /work ^
-    starp/hepynet_root_npy:v0 bash ^
+    starp/hepynet_root_io:v0.1 bash ^

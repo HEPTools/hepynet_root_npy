@@ -1,2 +1,2 @@
-CALL docker build -t starp/hepynet_root_npy:v0 .
+CALL docker build -t starp/hepynet_root_io:v0.1 .
 PAUSE
