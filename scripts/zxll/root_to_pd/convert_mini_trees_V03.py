@@ -13,7 +13,7 @@ ELECTRON_MASS = 0.00051099895  # GeV
 MUON_MASS = 0.1056583755  # GeV
 
 # setups
-#cut_level = "mva_2jet"
+# cut_level = "mva_2jet"
 cut_level = "mva_2jet_timing"
 ntup_dir = pathlib.Path(f"/data/ZXll/ntuples/V03")
 df_dir = pathlib.Path(f"/data/ZXll/data_frames/V03")
@@ -28,9 +28,6 @@ feature_list = [
     "lept_1_pt",
     "lept_1_eta",
     "lept_1_phi",
-    "ll_pt",
-    "ll_m",
-    "ll_dphi",
     "jet_0_pt",
     "jet_0_eta",
     "jet_0_phi",
@@ -43,7 +40,6 @@ feature_list = [
     "jet_1_m",
     "jet_1_fjvt",
     "jet_1_time",
-    "jj_m",
     "n_jet",
     "n_bjet",
     "met",
@@ -131,27 +127,28 @@ def process_sample(sample_name, sample_path, is_sig, is_mc, channel, camp=None):
     for chunk_pd in uproot.iterate(
         f"{sample_path}:ntup",
         feature_list,
-        #cut=f"(ll_m >= 200) & ({channel} == 1)",
-        cut=f"(ll_m >= 150) & ({channel} == 1)",
+        # cut=f"(ll_m >= 200) & ({channel} == 1)",
+        # cut=f"(ll_m >= 150) & ({channel} == 1)",
+        cut=f"{channel} == 1",
         library="pd",
         step_size="200 MB",
     ):
         mem_available = psutil.virtual_memory().available / GB
         mem_total = psutil.virtual_memory().total / GB
         print(
-            f"RAM usage {mem_available:.02f} / {mem_total:.02f} GB",
+            f"RAM available {mem_available:.02f} / {mem_total:.02f} GB",
             end="\r",
             flush=True,
         )
-        # add physic para for pNN
-        if "bkg" in sample_name:
-            chunk_pd = chunk_pd.assign(m_truth=chunk_pd["ll_m"])
-        elif "sig" in sample_name:
-            chunk_pd = chunk_pd.assign(m_truth=sig_masses[sample_name])
+
         # add extra variables
+        ll_pt_list = list()
+        ll_m_list = list()
+        ll_dphi_list = list()
         ll_y_list = list()
         jet_0_ll_delta_phi_list = list()
         jet_1_ll_delta_phi_list = list()
+        jj_m_list = list()
         jj_pt_list = list()
         jj_y_list = list()
         jj_ll_delta_phi_list = list()
@@ -185,25 +182,43 @@ def process_sample(sample_name, sample_path, is_sig, is_mc, channel, camp=None):
             )
             ll = lep_0 + lep_1
             jj = jet_0 + jet_1
+            ll_pt = ll.Pt()
+            ll_m = ll.M()
+            ll_dphi = lep_0.DeltaPhi(lep_1)
             ll_y = ll.Rapidity()
             jet_0_ll_delta_phi = jet_0.DeltaPhi(ll)
             jet_1_ll_delta_phi = jet_0.DeltaPhi(ll)
+            jj_m = jj.M()
             jj_pt = jj.Pt()
             jj_y = jj.Rapidity()
             jj_ll_delta_phi = jj.DeltaPhi(ll)
             # append to list
+            ll_pt_list.append(ll_pt)
+            ll_m_list.append(ll_m)
+            ll_dphi_list.append(ll_dphi)
             ll_y_list.append(ll_y)
             jet_0_ll_delta_phi_list.append(jet_0_ll_delta_phi)
             jet_1_ll_delta_phi_list.append(jet_1_ll_delta_phi)
+            jj_m_list.append(jj_m)
             jj_pt_list.append(jj_pt)
             jj_y_list.append(jj_y)
             jj_ll_delta_phi_list.append(jj_ll_delta_phi)
+        chunk_pd = chunk_pd.assign(ll_pt=ll_pt_list)
+        chunk_pd = chunk_pd.assign(ll_m=ll_m_list)
+        chunk_pd = chunk_pd.assign(ll_dphi=ll_dphi_list)
         chunk_pd = chunk_pd.assign(ll_y=ll_y_list)
         chunk_pd = chunk_pd.assign(jet_0_ll_delta_phi=jet_0_ll_delta_phi_list)
         chunk_pd = chunk_pd.assign(jet_1_ll_delta_phi=jet_1_ll_delta_phi_list)
+        chunk_pd = chunk_pd.assign(jj_m=jj_m_list)
         chunk_pd = chunk_pd.assign(jj_pt=jj_pt_list)
         chunk_pd = chunk_pd.assign(jj_y=jj_y_list)
         chunk_pd = chunk_pd.assign(jj_ll_delta_phi=jj_ll_delta_phi_list)
+
+        # add physic para for pNN
+        if "bkg" in sample_name:
+            chunk_pd = chunk_pd.assign(m_truth=chunk_pd["ll_m"])
+        elif "sig" in sample_name:
+            chunk_pd = chunk_pd.assign(m_truth=sig_masses[sample_name])
 
         # convert float64 to float32
         f64_cols = chunk_pd.select_dtypes(include="float64").columns
@@ -223,7 +238,7 @@ def process_sample(sample_name, sample_path, is_sig, is_mc, channel, camp=None):
     sys.stdout.write("\033[K")
     return sample_dfs
 
-
+"""
 ## ee channel
 print("## Processing ee channel")
 ee_df_list = list()
@@ -240,12 +255,13 @@ for sig_name in sig_ee_names:
 ### dump
 ee_df = pd.concat(ee_df_list, ignore_index=True)
 del ee_df_list
-#save_path = ee_dir / "zxll_ee_mll_200.feather"
-save_path = ee_dir / "zxll_ee_mll_150.feather"
+# save_path = ee_dir / "zxll_ee_mll_200.feather"
+# save_path = ee_dir / "zxll_ee_mll_150.feather"
+save_path = ee_dir / "zxll_ee.feather"
 print(f"## Saving to {save_path}")
 ee_df.to_feather(save_path)
 del ee_df
-
+"""
 
 ## mm channel
 print("## Processing mm channel")
@@ -263,8 +279,9 @@ for sig_name in sig_mm_names:
 ### dump
 mm_df = pd.concat(mm_df_list, ignore_index=True)
 del mm_df_list
-#save_path = mm_dir / "zxll_mm_mll_200.feather"
-save_path = mm_dir / "zxll_mm_mll_150.feather"
+# save_path = mm_dir / "zxll_mm_mll_200.feather"
+# save_path = mm_dir / "zxll_mm_mll_150.feather"
+save_path = mm_dir / "zxll_mm.feather"
 print(f"## Saving to {save_path}")
 mm_df.to_feather(save_path)
 del mm_df
